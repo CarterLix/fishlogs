@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FishlogsController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [FishlogsController::class, 'index']);
