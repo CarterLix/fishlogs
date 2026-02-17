@@ -15,7 +15,7 @@ class FishlogsController extends Controller
     {
         //
         $fishlogs = Fishlogs::orderBy('date', 'desc')->get();
-        return view('fishlogs', compact('fishlogs'));
+        return view('fishlog.index', compact('fishlogs'));
 
     }
 
@@ -24,7 +24,7 @@ class FishlogsController extends Controller
      */
     public function create()
     {
-        //
+        return view('fishlog.create');
     }
 
     /**
@@ -32,7 +32,10 @@ class FishlogsController extends Controller
      */
     public function store(StoreFishlogsRequest $request)
     {
-        //
+        $fishlogs = new Fishlogs($request->all());
+        $fishlogs->save();
+
+        return redirect()->route('fishlogs.index');
     }
 
     /**
@@ -40,7 +43,7 @@ class FishlogsController extends Controller
      */
     public function show(Fishlogs $fishlogs)
     {
-        //
+        return view('fishlog.show', ['fishlog' => $fishlogs]);
     }
 
     /**
@@ -48,7 +51,7 @@ class FishlogsController extends Controller
      */
     public function edit(Fishlogs $fishlogs)
     {
-        //
+        return view('fishlog.edit', ['fishlog' => $fishlogs]);
     }
 
     /**
@@ -56,7 +59,10 @@ class FishlogsController extends Controller
      */
     public function update(UpdateFishlogsRequest $request, Fishlogs $fishlogs)
     {
-        //
+
+        $fishlogs->update($request->all());
+
+        return redirect()->route('fishlogs.show', $fishlogs->id);
     }
 
     /**

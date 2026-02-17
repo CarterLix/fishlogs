@@ -3,4 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FishlogsController;
 
-Route::get('/', [FishlogsController::class, 'index']);
+Route::resource('fishlogs', FishlogsController::class) ->parameters(['fishlogs' => 'fishlogs']);
+
+Route::get('/', function () {
+    return view('home');
+});
+
