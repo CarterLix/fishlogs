@@ -10,18 +10,20 @@ Route::get('/', function () {
 });
 
 
-Route::get('/', function () {
+Route::get('/home', function () {
     return view('home');
 });
 
 Auth::routes();
 
 Route::get('/dashboard', function () {
-    return view('fishlog/index');
-})->middleware('auth')->name('dashboard');
+    return view('home');
+    })
+    ->middleware('auth')
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::resource('fishlogs', FishlogController::class);
+    Route::resource('fishlogs', FishlogsController::class);
 });
 
 

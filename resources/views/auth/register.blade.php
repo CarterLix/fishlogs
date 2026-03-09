@@ -4,11 +4,11 @@
 
 @section('content')
 
-<div class="container hero-shell">
+<div class="container justify-content-center">
     <div class="row justify-content-center">
-        <div class="col-lg-6 col-xl-5">
+        <div class="col-4 col-xl-7">
 
-```
+
         <div class="hero-card">
 
             <h1 class="h3 fw-bold mb-3 text-center">
@@ -110,7 +110,7 @@
 
     </div>
 </div>
-```
+
 
 </div>
 @endsection

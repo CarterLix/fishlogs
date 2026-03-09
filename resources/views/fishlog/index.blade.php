@@ -13,7 +13,7 @@
             <div class="card-body p-0">
 
                 <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle">
+                    <table class="table table-dark table-hover align-middle mb-0">
                         <thead>
                             <tr>
                                 <th>Datersrs</th>
@@ -41,7 +41,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4 text-secondary">
+                                    <td colspan="7" class="text-center py-4 text-secondary">
                                         No fish logs found
                                     </td>
                                 </tr>
