@@ -11,4 +11,9 @@ class Fishlogs extends Model
     use HasFactory;
     protected $fillable = ['date', 'name', 'location', 'species', 'method', 'rating'];
 
+        public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

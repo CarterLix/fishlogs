@@ -14,7 +14,7 @@ class FishlogsController extends Controller
     public function index()
     {
         //
-        $fishlogs = Fishlogs::orderBy('date', 'desc')->get();
+        $fishlogs = Fishlogs::where('user_id', auth()->id())->orderBy('date', 'desc')->get();
         return view('fishlog.index', compact('fishlogs'));
 
     }
@@ -32,7 +32,9 @@ class FishlogsController extends Controller
      */
     public function store(StoreFishlogsRequest $request)
     {
+
         $fishlogs = new Fishlogs($request->all());
+        $fishlogs->user_id = auth()->id();
         $fishlogs->save();
 
         return redirect()->route('fishlogs.index');
