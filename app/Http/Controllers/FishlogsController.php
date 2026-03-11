@@ -32,7 +32,14 @@ class FishlogsController extends Controller
      */
     public function store(StoreFishlogsRequest $request)
     {
-
+        $request->validate([
+            'date' => 'required|date',
+            'name' => 'required|string',
+            'location' => 'required|string|max:255',
+            'species' => 'required|string|max:255',
+            'method' => 'required|string|max:255',
+            'rating' => 'required|integer|min:1|max:10'
+        ]);
         $fishlogs = new Fishlogs($request->all());
         $fishlogs->user_id = auth()->id();
         $fishlogs->save();
@@ -61,7 +68,14 @@ class FishlogsController extends Controller
      */
     public function update(UpdateFishlogsRequest $request, Fishlogs $fishlogs)
     {
-
+        $request->validate([
+            'date' => 'required|date',
+            'name' => 'required|string',
+            'location' => 'required|string|max:255',
+            'species' => 'required|string|max:255',
+            'method' => 'required|string|max:255',
+            'rating' => 'required|integer|min:1|max:10'
+        ]);
         $fishlogs->update($request->all());
 
         return redirect()->route('fishlogs.show', $fishlogs->id);
@@ -72,6 +86,11 @@ class FishlogsController extends Controller
      */
     public function destroy(Fishlogs $fishlogs)
     {
-        //
+       try {
+            $fishlogs->delete();
+            return redirect()->route('fishlogs.index')->with('success', 'Deleted');
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 }

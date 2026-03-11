@@ -2,6 +2,16 @@
   $isEdit = isset($fishlog);
 @endphp
 
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 <div class="mb-3">
   <label class="form-label">Date</label>
   <input type="date" name="date" class="form-control"
