@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFishlogsRequest;
+use App\Http\Requests\UpdateFishlogsRequest;
 use App\Models\Fishlogs;
 use App\Models\Photo;
 use App\Models\Tag;
@@ -25,28 +27,15 @@ class FishlogsController extends Controller
         return view('fishlog.create', compact('tags'));
     }
 
-    public function store(\Illuminate\Http\Request $request)
+    public function store(StoreFishlogsRequest $request)
     {
-        $request->validate([
-            'date' => 'required|date',
-            'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'species' => 'required|string|max:255',
-            'method' => 'required|string|max:255',
-            'rating' => 'required|integer|min:1|max:10',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:25120',
-        ]);
-
         $fishlog = new Fishlogs([
-            'date' => $request->date,
-            'name' => $request->name,
-            'location' => $request->location,
-            'species' => $request->species,
+            'date' => $request->input('date'),
+            'name' => $request->input('name'),
+            'location' => $request->input('location'),
+            'species' => $request->input('species'),
             'method' => $request->input('method'),
-            'rating' => $request->rating,
+            'rating' => $request->input('rating'),
         ]);
 
         $fishlog->user_id = auth()->id();
@@ -65,7 +54,8 @@ class FishlogsController extends Controller
             }
         }
 
-        return redirect()->route('fishlogs.index')
+        return redirect()
+            ->route('fishlogs.index')
             ->with('success', 'Fish log created.');
     }
 
@@ -91,30 +81,15 @@ class FishlogsController extends Controller
         ]);
     }
 
-    public function update(\Illuminate\Http\Request $request, Fishlogs $fishlogs)
+    public function update(UpdateFishlogsRequest $request, Fishlogs $fishlogs)
     {
-        $this->authorize('update', $fishlogs);
-
-        $request->validate([
-            'date' => 'required|date',
-            'name' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'species' => 'required|string|max:255',
-            'method' => 'required|string|max:255',
-            'rating' => 'required|integer|min:1|max:10',
-            'tags' => 'nullable|array',
-            'tags.*' => 'exists:tags,id',
-            'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:25120',
-        ]);
-
         $fishlogs->update([
-            'date' => $request->date,
-            'name' => $request->name,
-            'location' => $request->location,
-            'species' => $request->species,
+            'date' => $request->input('date'),
+            'name' => $request->input('name'),
+            'location' => $request->input('location'),
+            'species' => $request->input('species'),
             'method' => $request->input('method'),
-            'rating' => $request->rating,
+            'rating' => $request->input('rating'),
         ]);
 
         $fishlogs->tags()->sync($request->input('tags', []));
@@ -141,7 +116,8 @@ class FishlogsController extends Controller
             }
         }
 
-        return redirect()->route('fishlogs.show', $fishlogs->id)
+        return redirect()
+            ->route('fishlogs.show', $fishlogs->id)
             ->with('success', 'Fish log updated.');
     }
 
@@ -149,9 +125,14 @@ class FishlogsController extends Controller
     {
         $this->authorize('delete', $fishlogs);
 
+        foreach ($fishlogs->photos as $photo) {
+            Storage::disk('public')->delete($photo->filePath);
+        }
+
         $fishlogs->delete();
 
-        return redirect()->route('fishlogs.index')
+        return redirect()
+            ->route('fishlogs.index')
             ->with('success', 'Deleted');
     }
 }

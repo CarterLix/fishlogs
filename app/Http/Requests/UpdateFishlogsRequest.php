@@ -26,7 +26,7 @@ class UpdateFishlogsRequest extends FormRequest
             'tags' => 'nullable|array',
             'tags.*' => 'exists:tags,id',
             'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:25120',
             'remove_photos' => 'nullable|array',
             'remove_photos.*' => 'integer|exists:photos,id',
         ];
