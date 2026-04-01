@@ -2,95 +2,156 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreFishlogsRequest;
-use App\Http\Requests\UpdateFishlogsRequest;
 use App\Models\Fishlogs;
+use App\Models\Photo;
+use App\Models\Tag;
+use Illuminate\Support\Facades\Storage;
 
 class FishlogsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
-        $fishlogs = Fishlogs::where('user_id', auth()->id())->orderBy('date', 'desc')->get();
-        return view('fishlog.index', compact('fishlogs'));
+        $fishlogs = Fishlogs::where('user_id', auth()->id())
+            ->orderBy('date', 'desc')
+            ->get();
 
+        return view('fishlog.index', compact('fishlogs'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('fishlog.create');
+        $tags = Tag::all();
+
+        return view('fishlog.create', compact('tags'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreFishlogsRequest $request)
+    public function store(\Illuminate\Http\Request $request)
     {
         $request->validate([
             'date' => 'required|date',
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'species' => 'required|string|max:255',
             'method' => 'required|string|max:255',
-            'rating' => 'required|integer|min:1|max:10'
+            'rating' => 'required|integer|min:1|max:10',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'photos' => 'nullable|array',
+            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:25120',
         ]);
-        $fishlogs = new Fishlogs($request->all());
-        $fishlogs->user_id = auth()->id();
-        $fishlogs->save();
 
-        return redirect()->route('fishlogs.index');
+        $fishlog = new Fishlogs([
+            'date' => $request->date,
+            'name' => $request->name,
+            'location' => $request->location,
+            'species' => $request->species,
+            'method' => $request->input('method'),
+            'rating' => $request->rating,
+        ]);
+
+        $fishlog->user_id = auth()->id();
+        $fishlog->save();
+
+        $fishlog->tags()->sync($request->input('tags', []));
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photoFile) {
+                $storedPath = $photoFile->store('photos', 'public');
+
+                Photo::create([
+                    'fishlog_id' => $fishlog->id,
+                    'filePath' => $storedPath,
+                ]);
+            }
+        }
+
+        return redirect()->route('fishlogs.index')
+            ->with('success', 'Fish log created.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Fishlogs $fishlogs)
     {
+        $this->authorize('view', $fishlogs);
+
+        $fishlogs->load('tags', 'photos');
+
         return view('fishlog.show', ['fishlog' => $fishlogs]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Fishlogs $fishlogs)
     {
-        return view('fishlog.edit', ['fishlog' => $fishlogs]);
+        $this->authorize('update', $fishlogs);
+
+        $fishlogs->load('tags', 'photos');
+        $tags = Tag::all();
+
+        return view('fishlog.edit', [
+            'fishlog' => $fishlogs,
+            'tags' => $tags,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateFishlogsRequest $request, Fishlogs $fishlogs)
+    public function update(\Illuminate\Http\Request $request, Fishlogs $fishlogs)
     {
+        $this->authorize('update', $fishlogs);
+
         $request->validate([
             'date' => 'required|date',
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'location' => 'required|string|max:255',
             'species' => 'required|string|max:255',
             'method' => 'required|string|max:255',
-            'rating' => 'required|integer|min:1|max:10'
+            'rating' => 'required|integer|min:1|max:10',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'photos' => 'nullable|array',
+            'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:25120',
         ]);
-        $fishlogs->update($request->all());
 
-        return redirect()->route('fishlogs.show', $fishlogs->id);
+        $fishlogs->update([
+            'date' => $request->date,
+            'name' => $request->name,
+            'location' => $request->location,
+            'species' => $request->species,
+            'method' => $request->input('method'),
+            'rating' => $request->rating,
+        ]);
+
+        $fishlogs->tags()->sync($request->input('tags', []));
+
+        if ($request->filled('remove_photos')) {
+            $photosToRemove = $fishlogs->photos()
+                ->whereIn('id', $request->input('remove_photos'))
+                ->get();
+
+            foreach ($photosToRemove as $photo) {
+                Storage::disk('public')->delete($photo->filePath);
+                $photo->delete();
+            }
+        }
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photoFile) {
+                $storedPath = $photoFile->store('photos', 'public');
+
+                Photo::create([
+                    'fishlog_id' => $fishlogs->id,
+                    'filePath' => $storedPath,
+                ]);
+            }
+        }
+
+        return redirect()->route('fishlogs.show', $fishlogs->id)
+            ->with('success', 'Fish log updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Fishlogs $fishlogs)
     {
-       try {
-            $fishlogs->delete();
-            return redirect()->route('fishlogs.index')->with('success', 'Deleted');
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-        }
+        $this->authorize('delete', $fishlogs);
+
+        $fishlogs->delete();
+
+        return redirect()->route('fishlogs.index')
+            ->with('success', 'Deleted');
     }
 }

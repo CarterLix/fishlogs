@@ -16,4 +16,16 @@ class Fishlogs extends Model
         return $this->belongsTo(User::class);
     }
 
+    // One fishlog → many photos
+    public function photos()
+    {
+        return $this->hasMany(Photo::class, 'fishlog_id');
+    }
+
+    // One fishlog ↔ many tags
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'log_tag', 'fishlog_id', 'tag_id');
+    }
+
 }

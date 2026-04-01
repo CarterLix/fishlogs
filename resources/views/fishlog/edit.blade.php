@@ -11,7 +11,7 @@
 
   <div class="card shadow border-0 bg-dark text-light">
     <div class="card-body p-4">
-      <form method="POST" action="{{ route('fishlogs.update', $fishlog->id) }}">
+      <form method="POST" action="{{ route('fishlogs.update', $fishlog->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         @include('fishlog._form')

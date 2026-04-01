@@ -21,7 +21,7 @@ class FishlogsPolicy
      */
     public function view(User $user, Fishlogs $fishlogs): bool
     {
-        return false;
+        return $user->id === $fishlogs->user_id;
     }
 
     /**
@@ -29,7 +29,7 @@ class FishlogsPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class FishlogsPolicy
      */
     public function update(User $user, Fishlogs $fishlogs): bool
     {
-        return false;
+        return $user->id === $fishlogs->user_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class FishlogsPolicy
      */
     public function delete(User $user, Fishlogs $fishlogs): bool
     {
-        return false;
+        return $user->id === $fishlogs->user_id;
     }
 
     /**

@@ -11,7 +11,7 @@
 
   <div class="card shadow border-0 bg-dark text-light">
     <div class="card-body p-4">
-      <form method="POST" action="{{ route('fishlogs.store') }}">
+      <form method="POST" action="{{ route('fishlogs.store') }}" enctype="multipart/form-data">
         @csrf
         @include('fishlog._form')
       </form>
