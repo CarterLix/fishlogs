@@ -9,7 +9,7 @@ class UpdateFishlogsRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $fishlog = $this->route('fishlogs');
+        $fishlog = $this->route('fishlog');
 
         return $fishlog && $this->user()->can('update', $fishlog);
     }
