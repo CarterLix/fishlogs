@@ -3,12 +3,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FishlogsController;
 
-Route::resource('fishlogs', FishlogsController::class) ->parameters(['fishlogs' => 'fishlogs']);
-
 Route::get('/', function () {
     return view('home');
 });
-
 
 Route::get('/home', function () {
     return view('home');
@@ -16,14 +13,14 @@ Route::get('/home', function () {
 
 Auth::routes();
 
-Route::get('/dashboard', function () {
-    return view('home');
-    })
-    ->middleware('auth')
-    ->name('dashboard');
+Route::middleware(['auth'])->group(function () {
 
-Route::middleware('auth')->group(function () {
-    Route::resource('fishlogs', FishlogsController::class);
+    Route::get('/dashboard', function () {
+        return view('home');
+    })->name('dashboard');
+
+    Route::resource('fishlogs', FishlogsController::class)
+        ->parameters(['fishlogs' => 'fishlogs']);
 });
 
 
