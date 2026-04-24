@@ -9,7 +9,7 @@ class Fishlogs extends Model
 {
     /** @use HasFactory<\Database\Factories\FishlogsFactory> */
     use HasFactory;
-    protected $fillable = ['date', 'name', 'location', 'species', 'method', 'rating'];
+    protected $fillable = ['user_id', 'date', 'name', 'location', 'species', 'method', 'rating'];
 
         public function user()
     {

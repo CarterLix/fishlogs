@@ -21,7 +21,7 @@ class FishlogsPolicy
      */
     public function view(User $user, Fishlogs $fishlogs): bool
     {
-        return $user->id === $fishlogs->user_id;
+        return (int) $user->id ===  (int) $fishlogs->user_id;
     }
 
     /**
